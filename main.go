@@ -28,16 +28,16 @@ var (
 	// CommitSHA as provided by goreleaser.
 	CommitSHA = ""
 
-	readmeNames  = []string{"README.md", "README"}
-	configFile   string
-	pager        bool
-	style        string
-	width        uint
-	showAllFiles bool
-	localOnly    bool
-	mouse        bool
-
-	rootCmd = &cobra.Command{
+	readmeNames           = []string{"README.md", "README"}
+	configFile            string
+	pager                 bool
+	style                 string
+	width                 uint
+	showAllFiles          bool
+	localOnly             bool
+	mouse                 bool
+	allowedCompletionExts = []string{"md", "markdown"}
+	rootCmd               = &cobra.Command{
 		Use:              "glow [SOURCE|DIR]",
 		Short:            "Render markdown on the CLI, with pizzazz!",
 		Long:             paragraph(fmt.Sprintf("\nRender markdown on the CLI, %s!", keyword("with pizzazz"))),
@@ -45,6 +45,13 @@ var (
 		SilenceUsage:     false,
 		TraverseChildren: true,
 		RunE:             execute,
+		ValidArgsFunction: func(c *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			// TODO: subpath completion doesnt seem to work fully yet.
+			if toComplete == "" || !strings.Contains("./", toComplete) {
+				return nil, cobra.ShellCompDirectiveDefault
+			}
+			return allowedCompletionExts, cobra.ShellCompDirectiveFilterFileExt
+		},
 	}
 )
 
